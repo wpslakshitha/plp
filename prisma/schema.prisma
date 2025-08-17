@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL") // Required for Neon
+}
+
+// Enum Definitions for structured data
+enum Role {
+  ADMIN
+  SELLER
+}
+
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum PropertyStatus {
+  PENDING   // Waiting for admin approval
+  APPROVED  // Live on the site
+  REJECTED  // Rejected by admin
+  SOLD      // Marked as sold
+}
+
+enum PropertyType {
+  LAND
+  HOUSE
+  APARTMENT
+}
+
+// User Model for Admins and Sellers
+enum Role { ADMIN, SELLER }
+enum KycStatus { PENDING, VERIFIED, REJECTED }
+enum PropertyStatus { PENDING, APPROVED, REJECTED, SOLD }
+enum PropertyType { LAND, HOUSE, APARTMENT }
+
+// --- MODELS ---
+model User {
+  id                 String       @id @default(cuid())
+  email              String       @unique
+  name               String?
+  hashedPassword     String
+  role               Role         @default(SELLER)
+  kycStatus          KycStatus    @default(PENDING)
+  agreementSigned    Boolean      @default(false)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  properties         Property[]
+  favoriteProperties Property[]   @relation("UserFavorites")
+  views              PropertyView[] // Relation for views made by this user
+}
+
+model Property {
+  id           String         @id @default(cuid())
+  title        String
+  description  String
+  price        Decimal
+  location     String
+  propertyType PropertyType
+  bedrooms     Int            @default(1)
+  bathrooms    Int            @default(1)
+  guests       Int            @default(2)
+  amenities    String[]
+  status       PropertyStatus @default(PENDING)
+  imageUrls    String[]
+  videoUrl     String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  sellerId     String
+  seller       User           @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  favoritedBy  User[]         @relation("UserFavorites")
+  views        PropertyView[] // Relation to all views for this property
+}
+
+model PropertyView {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  viewerHash String   // Hashed IP or a fingerprint for anonymous users
+  createdAt  DateTime @default(now())
+  @@unique([propertyId, userId])
+  @@unique([propertyId, viewerHash])
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique // e.g., "enableViewTracking"
+  value String // "true" or "false"
+}
+
+model Reminder {
+  id           String       @id @default(cuid())
+  email        String
+  location     String?      // Optional: e.g., "Kandy"
+  propertyType PropertyType?  // Optional: e.g., LAND
+  maxPrice     Decimal?     // Optional: budget limit
+  
+  createdAt    DateTime     @default(now())
+
+  @@index([email])
+}
+
+model BuyerProfile {
+  id              String       @id @default(cuid())
+  name            String
+  email           String       @unique
+  phone           String?
+
+  desiredLocation String?      // e.g., "Colombo"
+  propertyType    PropertyType?
+  minBudget       Decimal?
+  maxBudget       Decimal?
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
