@@ -3,14 +3,25 @@ import prisma from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import PropertyApprovalCard from "@/components/admin/PropertyApprovalCard";
+import { Property, User } from "@prisma/client"; // Import Prisma types
 
-async function getPendingProperties() {
+// --- DEFINE THE TYPE ---
+// This creates a new type that includes the Property fields AND the specific seller fields we included.
+type PropertyWithSellerInfo = Property & {
+  seller: {
+    name: string | null;
+    email: string;
+  };
+};
+
+// --- UPDATE THE FUNCTION'S RETURN TYPE ---
+async function getPendingProperties(): Promise<PropertyWithSellerInfo[]> {
   const properties = await prisma.property.findMany({
     where: {
       status: 'PENDING',
     },
     include: {
-      seller: { // Include seller's name for context
+      seller: {
         select: {
           name: true,
           email: true,
@@ -18,7 +29,7 @@ async function getPendingProperties() {
       },
     },
     orderBy: {
-      createdAt: 'asc', // Show oldest requests first
+      createdAt: 'asc',
     },
   });
   return properties;
@@ -47,7 +58,8 @@ const ApprovalsPage = async () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {pendingProperties.map((property) => (
+          {/* --- APPLY THE TYPE TO THE PARAMETER --- */}
+          {pendingProperties.map((property: PropertyWithSellerInfo) => (
             <PropertyApprovalCard key={property.id} property={property} />
           ))}
         </div>
