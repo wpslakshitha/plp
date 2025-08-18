@@ -22,9 +22,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value }) => {
   return (
     <CldUploadWidget
       onSuccess={handleUpload}
-      uploadPreset="unsigned_preset_name" // Create an unsigned upload preset on Cloudinary
+      uploadPreset="realestate_unsigned" // Create an unsigned upload preset on Cloudinary
       options={{
         maxFiles: 1,
+        sources: ['local', 'url', 'camera'],
       }}
     >
       {({ open }) => {

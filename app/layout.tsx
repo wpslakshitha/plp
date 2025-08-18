@@ -7,6 +7,7 @@ import AuthModal from "@/components/modals/AuthModal";
 import { ReactNode } from "react";
 import MobileSearchHeader from "@/components/search/MobileSearchHeader";
 import MobileTabBar from "@/components/shared/MobileTabBar";
+import MobileSearchModal from "@/components/modals/MobileSearchModal";
 
 // Configure the font
 const font = Nunito_Sans({
@@ -19,21 +20,18 @@ export const metadata: Metadata = {
   description: "Find your next property",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode; }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   return (
-<html lang="en">
+    <html lang="en">
       <body className={font.className}>
         <NextAuthProvider>
           <AuthModal />
-          
-          {/* Desktop Navbar */}
+          <MobileSearchModal /> {/* Add the MobileSearchModal here */}
           <Navbar />
-          
-          {/* Mobile Headers and Footers */}
           <MobileSearchHeader />
           <MobileTabBar />
-          
-          {/* Main content with responsive padding */}
           <main className="pb-20 md:pb-0">{children}</main>
         </NextAuthProvider>
       </body>
