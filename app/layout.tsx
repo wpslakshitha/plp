@@ -4,7 +4,7 @@ import "./globals.css";
 import NextAuthProvider from "@/components/providers/NextAuthProvider";
 import Navbar from "@/components/shared/Navbar";
 import AuthModal from "@/components/modals/AuthModal";
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import MobileSearchHeader from "@/components/search/MobileSearchHeader";
 import MobileTabBar from "@/components/shared/MobileTabBar";
 import MobileSearchModal from "@/components/modals/MobileSearchModal";
@@ -20,18 +20,22 @@ export const metadata: Metadata = {
   description: "Find your next property",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: ReactNode; }>) {
   return (
     <html lang="en">
       <body className={font.className}>
         <NextAuthProvider>
           <AuthModal />
-          <MobileSearchModal /> {/* Add the MobileSearchModal here */}
+          
           <Navbar />
-          <MobileSearchHeader />
+          
+          {/* --- WRAP THE COMPONENT USING useSearchParams IN SUSPENSE --- */}
+          <Suspense fallback={<div>Loading Search...</div>}>
+            <MobileSearchHeader />
+          </Suspense>
+          
           <MobileTabBar />
+          
           <main className="pb-20 md:pb-0">{children}</main>
         </NextAuthProvider>
       </body>
