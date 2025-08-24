@@ -9,7 +9,7 @@ import useAuthModal from "@/hooks/useAuthModal";
 const MobileTabBar = () => {
     const { data: session } = useSession();
     const pathname = usePathname();
-    const authModal = useAuthModal(); // CORRECTED LINE
+    const authModal = useAuthModal();
 
     const routes = [
         {
@@ -27,8 +27,9 @@ const MobileTabBar = () => {
         {
             label: session ? "Profile" : "Log in",
             icon: AiOutlineUser,
-            href: session ? '/seller/dashboard' : '#', // Or a profile page
-            active: false, // Active state not needed for login/profile
+            // @ts-ignore
+            href: session ? (session.user.role === 'ADMIN' ? '/admin/dashboard' : '/seller/dashboard') : '#',
+            active: false,
         }
     ];
 
@@ -44,7 +45,7 @@ const MobileTabBar = () => {
                         key={item.label}
                         onClick={(e) => {
                             if (!session && item.label === 'Log in') {
-                                e.preventDefault(); // Prevent navigation for '#' link
+                                e.preventDefault();
                                 authModal.onOpen();
                             }
                         }}

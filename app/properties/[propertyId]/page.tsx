@@ -10,6 +10,8 @@ import PropertyReservationCard from "@/components/properties/PropertyReservation
 import HeartButton from "@/components/ui/HeartButton";
 import MobileContactFooter from "@/components/properties/MobileContactFooter";
 import MobilePropertyHeader from "@/components/properties/MobilePropertyHeader";
+import DesktopShareButton from "@/components/properties/DesktopShareButton";
+import ViewTracker from "@/components/properties/ViewTracker";
 
 // Interface for page parameters
 interface IParams {
@@ -70,32 +72,42 @@ const PropertyPage = async ({ params }: { params: IParams }) => {
 
   return (
     <>
-      {/* --- MOBILE-ONLY COMPONENTS --- */}
-      <MobilePropertyHeader propertyId={property.id} isFavorited={isFavorited} />
+    <ViewTracker propertyId={property.id} />
+      {/* --- MOBILE-ONLY HEADER with new props --- */}
+      <MobilePropertyHeader 
+        propertyId={property.id} 
+        isFavorited={isFavorited}
+        title={property.title}
+        location={property.location}
+      />
 
-      {/* --- SHARED LAYOUT (DESKTOP & MOBILE) --- */}
-      <div className="pb-24 md:pb-0"> {/* Padding bottom for mobile footer */}
-          {/* Image Grid Section - No container for mobile, full width */}
-          <div className="md:max-w-screen-lg md:mx-auto">
+      <div className="pb-24 md:pb-0">
+          <div className="md:max-w-screen-lg md:mx-auto md:pt-[100px]">
               <PropertyImageGrid imageUrls={property.imageUrls} />
           </div>
 
           <div className="max-w-screen-lg mx-auto">
               <div className="px-4 sm:px-6 lg:px-10 py-6">
-                  {/* Main Content Area */}
-                  <div className="grid grid-cols-1 md:grid-cols-7 md:gap-12 mt-0 md:mt-6">
-                      {/* Left Column: Info */}
-                      <div className="md:col-span-4">
-                          {/* Desktop Header */}
-                          <div className="hidden md:block">
-                              <h1 className="text-2xl font-semibold">{property.title}</h1>
-                              <span className="underline cursor-pointer">{property.location}</span>
+                  {/* --- DESKTOP-ONLY HEADER --- */}
+                  <div className="hidden md:block">
+                      <h1 className="text-2xl font-semibold">{property.title}</h1>
+                      <div className="flex items-center justify-between text-sm font-light text-neutral-600 mt-2">
+                          <span className="underline cursor-pointer">{property.location}</span>
+                          <div className="flex items-center gap-4">
+                              <DesktopShareButton />
+                              <div className="flex items-center gap-2">
+                                  <HeartButton propertyId={property.id} isFavorited={isFavorited} />
+                                  <span className="hover:underline cursor-pointer">Save</span>
+                              </div>
                           </div>
-                          <hr className="my-6 hidden md:block" />
+                      </div>
+                  </div>
+                  
+                  {/* Main Content Area */}
+                  <div className="grid grid-cols-1 md:grid-cols-7 md:gap-12 mt-6">
+                      <div className="md:col-span-4">
                           <PropertyInfo property={property} />
                       </div>
-                      
-                      {/* Right Column: Reservation Card - Hidden on Mobile */}
                       <div className="hidden md:block md:col-span-3">
                           <PropertyReservationCard property={property} />
                       </div>
@@ -104,7 +116,6 @@ const PropertyPage = async ({ params }: { params: IParams }) => {
           </div>
       </div>
 
-      {/* --- MOBILE-ONLY COMPONENTS --- */}
       <MobileContactFooter property={property} />
     </>
   );

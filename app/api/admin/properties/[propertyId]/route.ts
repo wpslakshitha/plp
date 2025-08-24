@@ -11,33 +11,26 @@ interface IParams {
 // --- SIMULATED EMAIL SERVICE ---
 // In a real application, you would use a service like SendGrid, Resend, or Nodemailer.
 // This function simulates sending an email by logging to the console.
-async function sendReminderEmail(reminder: Reminder, property: Property) {
-  // Construct the property URL. Ensure NEXTAUTH_URL is set in your .env file
-  const propertyUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/properties/${property.id}`;
+// async function sendReminderEmail(reminder: Reminder, property: Property) {
+//   // Construct the property URL. Ensure NEXTAUTH_URL is set in your .env file
+//   const propertyUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/properties/${property.id}`;
   
-  console.log("\n=============================================");
-  console.log("🚀 SIMULATING EMAIL SEND 🚀");
-  console.log("=============================================");
-  console.log(`TO: ${reminder.email}`);
-  console.log(`SUBJECT: New Property Alert: ${property.title}`);
-  console.log("\n--- Body ---");
-  console.log(`Hello,`);
-  console.log(`A new property matching your criteria has been listed on our platform.`);
-  console.log(`\nProperty Details:`);
-  console.log(`- Location: ${property.location}`);
-  console.log(`- Price: LKR ${property.price.toLocaleString()}`);
-  console.log(`\nView it here: ${propertyUrl}`);
-  console.log("---------------------------------------------\n");
+//   console.log("\n=============================================");
+//   console.log("🚀 SIMULATING EMAIL SEND 🚀");
+//   console.log("=============================================");
+//   console.log(`TO: ${reminder.email}`);
+//   console.log(`SUBJECT: New Property Alert: ${property.title}`);
+//   console.log("\n--- Body ---");
+//   console.log(`Hello,`);
+//   console.log(`A new property matching your criteria has been listed on our platform.`);
+//   console.log(`\nProperty Details:`);
+//   console.log(`- Location: ${property.location}`);
+//   console.log(`- Price: LKR ${property.price.toLocaleString()}`);
+//   console.log(`\nView it here: ${propertyUrl}`);
+//   console.log("---------------------------------------------\n");
   
-  // Here, you would add your actual email sending logic.
-  // For example, using Resend:
-  // await resend.emails.send({
-  //   from: 'onboarding@resend.dev',
-  //   to: reminder.email,
-  //   subject: `New Property Alert: ${property.title}`,
-  //   react: <ReminderEmailTemplate property={property} />
-  // });
-}
+  
+// }
 // --- END OF SIMULATED EMAIL SERVICE ---
 
 
@@ -68,9 +61,9 @@ async function processReminders(property: Property) {
     console.log(`[INFO] Found ${matchingReminders.length} matching reminders for property ID: ${property.id}`);
     
     // Send an email for each matching reminder
-    for (const reminder of matchingReminders) {
-      await sendReminderEmail(reminder, property);
-    }
+    // for (const reminder of matchingReminders) {
+    //   await sendReminderEmail(reminder, property);
+    // }
   } catch (error) {
     console.error("[REMINDER_PROCESSING_ERROR]", error);
   }

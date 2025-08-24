@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { Property } from "@prisma/client";
+import { Property, PropertyType } from "@prisma/client";
 
 export async function POST(request: Request) {
     const { property }: { property: Property } = await request.json();
@@ -9,31 +9,45 @@ export async function POST(request: Request) {
         return new NextResponse("Property data is required", { status: 400 });
     }
 
-    const query: any = {
+    const matchingBuyers = await prisma.buyerProfile.findMany({
         where: {
-            AND: [],
+            AND: [
+                // Condition 1: Location must match OR buyer has no location preference
+                {
+                    OR: [
+                        { desiredLocation: null },
+                        { desiredLocation: { equals: '', mode: 'insensitive' } }, // Check for empty string
+                        { desiredLocation: { contains: property.location, mode: 'insensitive' } }
+                    ]
+                },
+                // Condition 2: Property Type must match OR buyer's preference is ANY/null
+                {
+                    OR: [
+                        { propertyType: null },
+                        // 'ANY' is not in the schema, so we don't check for it.
+                        // A null propertyType in BuyerProfile implies they are open to any type.
+                        { propertyType: property.propertyType }
+                    ]
+                },
+                // Condition 3: Property price must be within buyer's budget
+                {
+                    OR: [
+                        { minBudget: null },
+                        { minBudget: { lte: property.price } }
+                    ]
+                },
+                {
+                    OR: [
+                        { maxBudget: null },
+                        { maxBudget: { gte: property.price } }
+                    ]
+                }
+            ]
         },
-    };
-
-    // Match location if buyer has specified one
-    if (property.location) {
-        query.where.AND.push({ desiredLocation: { contains: property.location, mode: 'insensitive' } });
-    }
-    // Match property type if buyer has specified one
-    if (property.propertyType) {
-        query.where.AND.push({ propertyType: property.propertyType });
-    }
-    // Match budget: property price must be within buyer's budget range
-    query.where.AND.push({
-        OR: [
-            { minBudget: null, maxBudget: null }, // Buyer has no budget preference
-            { minBudget: { lte: property.price }, maxBudget: { gte: property.price } },
-            { minBudget: { lte: property.price }, maxBudget: null }, // No max budget
-            { minBudget: null, maxBudget: { gte: property.price } }, // No min budget
-        ]
+        orderBy: {
+            createdAt: 'desc'
+        }
     });
-    
-    const matchingBuyers = await prisma.buyerProfile.findMany(query);
     
     return NextResponse.json(matchingBuyers);
 }

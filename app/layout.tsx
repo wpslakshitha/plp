@@ -8,6 +8,7 @@ import { ReactNode, Suspense } from "react";
 import MobileSearchHeader from "@/components/search/MobileSearchHeader";
 import MobileTabBar from "@/components/shared/MobileTabBar";
 import MobileSearchModal from "@/components/modals/MobileSearchModal";
+import AlertModal from "@/components/modals/AlertModal";
 
 // Configure the font
 const font = Nunito_Sans({
@@ -21,19 +22,16 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode; }>) {
-  return (
+ return (
     <html lang="en">
       <body className={font.className}>
         <NextAuthProvider>
           <AuthModal />
+          {/* <AlertModal /> */}
+          <MobileSearchModal />
           
           <Navbar />
-          
-          {/* --- WRAP THE COMPONENT USING useSearchParams IN SUSPENSE --- */}
-          <Suspense fallback={<div>Loading Search...</div>}>
-            <MobileSearchHeader />
-          </Suspense>
-          
+          <MobileSearchHeader />
           <MobileTabBar />
           
           <main className="pb-20 md:pb-0">{children}</main>

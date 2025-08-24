@@ -92,12 +92,20 @@ model Setting {
 
 model Reminder {
   id           String       @id @default(cuid())
-  email        String
-  location     String?
-  propertyType PropertyType?
-  maxPrice     Decimal?
+  
+  // User Input
+  phone        String       // Phone number is now mandatory
+  location     String?      
+  propertyType PropertyType?  
+  maxPrice     Decimal?     
+  
+  // System Fields
+  lastNotified DateTime?    // To avoid spamming the user
+  isActive     Boolean      @default(true) // User can unsubscribe
+  
   createdAt    DateTime     @default(now())
-  @@index([email])
+
+  @@index([phone])
 }
 
 model BuyerProfile {

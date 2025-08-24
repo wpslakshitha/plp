@@ -31,6 +31,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ data, currentUser }) => {
     setCurrentImageIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
   };
 
+      const priceAsNumber = Number(data.price);
+
   return (
     <div className="col-span-1 cursor-pointer group">
       <div className="flex flex-col gap-1 w-full">
@@ -75,9 +77,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ data, currentUser }) => {
                 </div>
                 <div className="flex flex-row items-center gap-1 mt-1">
                     <div className="font-semibold text-gray-800 text-sm">
-                        LKR {data.price.toLocaleString()}
+                        LKR {priceAsNumber.toLocaleString('en-US')}
                     </div>
-                    <div className="font-light text-gray-600 text-sm">per month</div>
                 </div>
             </div>
             {/* Star Rating (Placeholder) */}

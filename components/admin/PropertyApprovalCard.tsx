@@ -1,11 +1,13 @@
 'use client';
 
-import { Property, User } from "@prisma/client";
+import { Property } from "@prisma/client";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Image from "next/image";
+import { FiCheck, FiX, FiClock } from 'react-icons/fi';
+import { formatDistanceToNowStrict } from 'date-fns';
 
-// Define a more specific type for the property prop
 type PropertyWithSeller = Property & {
   seller: {
     name: string | null;
@@ -19,14 +21,14 @@ interface PropertyApprovalCardProps {
 
 const PropertyApprovalCard: React.FC<PropertyApprovalCardProps> = ({ property }) => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleUpdateStatus = async (status: 'APPROVED' | 'REJECTED') => {
+  const handleUpdateStatus = async (e: React.MouseEvent, status: 'APPROVED' | 'REJECTED') => {
+    e.stopPropagation(); // Prevent the main div's onClick from firing
     setIsLoading(true);
     try {
       await axios.patch(`/api/admin/properties/${property.id}`, { status });
-      alert(`Property has been ${status.toLowerCase()}.`);
-      router.refresh(); // Refresh the page to remove the card from the list
+      router.refresh();
     } catch (error) {
       console.error("Failed to update property status", error);
       alert("Something went wrong.");
@@ -34,40 +36,57 @@ const PropertyApprovalCard: React.FC<PropertyApprovalCardProps> = ({ property })
       setIsLoading(false);
     }
   };
+  
+  const priceAsNumber = Number(property.price);
+  const timeAgo = formatDistanceToNowStrict(new Date(property.createdAt), { addSuffix: true });
 
   return (
-    <div className="col-span-1 cursor-pointer group bg-white rounded-xl border-[1px] p-4 space-y-4">
-      <div className="font-semibold text-lg">{property.title}</div>
-      <div className="font-light text-neutral-500">
-        {property.location}
+    <div 
+        onClick={() => router.push(`/admin/properties/${property.id}`)}
+        className={`
+        bg-white border rounded-xl shadow-sm
+        flex items-center gap-4 p-3
+        hover:shadow-md hover:border-rose-300 transition cursor-pointer
+        ${isLoading ? 'opacity-50 pointer-events-none' : ''}
+    `}>
+      {/* Image Thumbnail */}
+      <div className="w-16 h-16 relative rounded-md overflow-hidden flex-shrink-0">
+        <Image src={property.imageUrls[0] || '/images/placeholder.jpg'} alt={property.title} fill className="object-cover" />
       </div>
-      <div className="font-semibold">
-        LKR {property.price.toLocaleString()}
+
+      {/* Main Info Section (takes up most space) */}
+      <div className="flex-grow grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+        <div>
+            <p className="font-bold text-neutral-800 text-base truncate">{property.title}</p>
+            <p className="text-sm text-neutral-500">{property.location}</p>
+        </div>
+
+        <div className="hidden sm:block">
+            <p className="font-semibold text-neutral-700">LKR {priceAsNumber.toLocaleString('en-US')}</p>
+            <p className="text-xs text-neutral-500">Listed by: {property.seller.name}</p>
+        </div>
+
+        <div className="hidden sm:flex items-center gap-2 text-xs text-neutral-500">
+            <FiClock size={12}/>
+            <span>Submitted {timeAgo}</span>
+        </div>
       </div>
-      <div className="text-sm text-neutral-600 border-t pt-2">
-        <p><strong>Seller:</strong> {property.seller.name}</p>
-        <p><strong>Contact:</strong> {property.seller.email}</p>
-      </div>
-      <div className="text-sm text-neutral-600 border-t pt-2">
-        <strong>Description:</strong> {property.description}
-      </div>
-      <div className="flex justify-between items-center gap-4 pt-4">
+
+      {/* Action Buttons (compact) */}
+      <div className="flex items-center gap-2 flex-shrink-0">
         <button
-          onClick={() => handleUpdateStatus('APPROVED')}
-          disabled={isLoading}
-          className="w-full bg-green-500 text-white font-semibold py-2 rounded-lg hover:bg-green-600 transition disabled:opacity-70"
-        >
-          Approve
+          onClick={(e) => handleUpdateStatus(e, 'REJECTED')}
+          title="Reject Property"
+          className="p-3 rounded-full hover:bg-red-100 text-red-600 transition">
+          <FiX size={18} />
         </button>
         <button
-          onClick={() => handleUpdateStatus('REJECTED')}
-          disabled={isLoading}
-          className="w-full bg-red-500 text-white font-semibold py-2 rounded-lg hover:bg-red-600 transition disabled:opacity-70"
-        >
-          Reject
+          onClick={(e) => handleUpdateStatus(e, 'APPROVED')}
+          title="Approve Property"
+          className="p-3 rounded-full hover:bg-green-100 text-green-600 transition">
+          <FiCheck size={18} />
         </button>
       </div>
-      {isLoading && <div className="text-center text-sm">Processing...</div>}
     </div>
   );
 };

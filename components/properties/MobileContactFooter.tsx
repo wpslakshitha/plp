@@ -7,9 +7,11 @@ interface MobileContactFooterProps {
 }
 
 const MobileContactFooter: React.FC<MobileContactFooterProps> = ({ property }) => {
-    const adminPhoneNumber = "947XXXXXXXX";
+    const adminPhoneNumber = "+94770172451";
     const message = `Hello, I'm interested in the property: "${property.title}" (ID: ${property.id}).`;
     const whatsappUrl = `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(message)}`;
+
+    const priceAsNumber = Number(property.price);
 
     return (
         <div className="
@@ -19,7 +21,8 @@ const MobileContactFooter: React.FC<MobileContactFooterProps> = ({ property }) =
             md:hidden
         ">
             <div>
-                <p className="font-semibold">LKR {property.price.toLocaleString()}</p>
+                {/* --- USE THE CONVERTED NUMBER --- */}
+                <p className="font-semibold">LKR {priceAsNumber.toLocaleString('en-US')}</p>
                 <p className="text-sm text-neutral-500">Total price</p>
             </div>
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="

@@ -21,7 +21,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, body, footer }) =
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center text-center">
+           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child as={Fragment} /* ... panel transition ... */ >
               <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all">
                 {/* Header */}

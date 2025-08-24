@@ -50,7 +50,7 @@ async function main() {
       data: {
         title: title,
         description: faker.lorem.paragraphs({ min: 2, max: 4 }),
-        price: faker.number.int({ min: 5000000, max: 150000000 }),
+        price: faker.number.int({ min: 500000, max: 1500000 }),
         location: randomLocation,
         propertyType: randomPropertyType,
         status: 'APPROVED',
